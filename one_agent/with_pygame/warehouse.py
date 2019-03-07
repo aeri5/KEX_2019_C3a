@@ -2,13 +2,15 @@ import tkinter
 from agent import *
 
 squareDim = 40
-warehouseSize = [8,7] #[maxX, maxY]
+warehouseSize = [10, 10] #[maxX, maxY]
 windowSize = [squareDim*warehouseSize[0], squareDim*warehouseSize[1]] #[width, height]
 obstacleCoords = [[2,2], [3,2], [4,2], [5,2], [7,2], [7,3], [7,4], [3,4], [4,4], [5,4]] #[[x, y], [x, y], ...]
 obstacles = []
 agentCoords = [[0,6]] #[[x, y], [x, y], ...] (agent start locations)
 agents = []
 actions = ["up", "right", "down", "left", "stay"]
+goalCoords = [[9, 0]]
+goals = []
 
 class Warehouse(tkinter.Tk, object):
 	def __init__(self):
@@ -31,6 +33,10 @@ class Warehouse(tkinter.Tk, object):
 		for agent in agentCoords:
 			agents.append(Agent(agent[0], agent[1], self.canvas.create_rectangle(agent[0]*squareDim+1, agent[1]*squareDim+1, (agent[0]+1)*squareDim-1, (agent[1]+1)*squareDim-1, fill="#eda061", outline="#eda061", tags=str(agentCounter))))
 			agentCounter += 1
+
+		#init goal
+		for goal in goalCoords:
+			goals.append(self.canvas.create_rectangle(goal[0]*squareDim+1, goal[1]*squareDim+1, (goal[0]+1)*squareDim-1, (goal[1]+1)*squareDim-1, fill="#a8e298", outline="#a8e298"))	
 
 		self.canvas.pack()
 
@@ -60,8 +66,23 @@ class Warehouse(tkinter.Tk, object):
 		agents[index].x = agentCoords[index][0]
 		agents[index].y = agentCoords[index][1]
 		self.canvas.coords(agents[index].tkID, agentCoords[index][0]*squareDim+1, agentCoords[index][1]*squareDim+1, (agentCoords[index][0]+1)*squareDim-1, (agentCoords[index][1]+1)*squareDim-1)
-		print("restart")
+		# print("restart")
 
 	def collision(self, index):
 		if [agents[index].x, agents[index].y] in obstacleCoords or agents[index].x < 0 or agents[index].x > warehouseSize[0]-1 or agents[index].y < 0 or agents[index].y > warehouseSize[1]-1:
-			return True
+			return True, False
+		elif [agents[index].x, agents[index].y] in goalCoords:
+			return True, True
+		else:
+			return False, False
+
+	def reward(self, index):
+		reward = -1
+		collision, goalReached = self.collision(index)
+		if collision:
+			if goalReached:
+				reward = 100
+			else:
+				reward = -100
+
+		return reward

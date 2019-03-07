@@ -24,8 +24,13 @@ while gameloop:
 			elif event.key==pygame.K_BACKSPACE:
 				print("exit")
 				sys.exit(0)
-		if w.collision(0):
+		collision, goalReached = w.collision(0)
+		if collision:
 			w.restart(0)
+			if goalReached:
+				print("goal reached")
+			else:
+				print("restart")
 		w.update()
 	window.fill(black)
 	pygame.display.flip()

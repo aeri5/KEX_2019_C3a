@@ -78,9 +78,9 @@ class Warehouse(tkinter.Tk, object):
 		collision, goalReached = self.collision(index)
 		if collision:
 			if goalReached:
-				reward = 100
+				reward = 50
 			else:
-				reward = -100
+				reward = -50
 
 		return reward
 

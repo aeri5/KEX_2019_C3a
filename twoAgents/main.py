@@ -20,7 +20,7 @@ nextState = [[0,0], [0,0]]
 
 def doStep(index):
 	global episodes, goalsReached, oldState, nextState
-	if episodes%250 == 0:
+	if episodes%1000 == 0:
 		time.sleep(0.05)
 	while True:
 		if random.uniform(0,1)<qTables[index].epsilon:
@@ -32,8 +32,9 @@ def doStep(index):
 		else:
 			break
 
+	print("index:", index, ", action:", action)
 	w.moveAgent(index, action)
-	if episodes%250 == 0:
+	if episodes%1000 == 0:
 		w.update()
 	nextState[index] = w.getAgentCoords(index)
 
@@ -43,7 +44,7 @@ def doStep(index):
 	qTables[index].updateQTable(oldState[index], action, reward, nextState[index])
 	# print(oldState)
 
-	if collision:
+	if collision or goalReached:
 		if goalReached:
 			outputStr = "Episode " + str(episodes) + ": Goal reached!"
 			goalsReached += 1
@@ -53,8 +54,6 @@ def doStep(index):
 		# print(outputStr) 
 
 	oldState[index] = nextState[index]
-
-
 
 	return collision, goalReached
 
@@ -76,7 +75,7 @@ try:
 			if coll0 or coll1:
 				break
 
-		if episodes%10 == 0:
+		if episodes%100 == 0:
 			for qTable in qTables:
 				qTable.updateEpsilon()
 			print(str(episodes), "episodes with ", str(round(100*goalsReached/episodes)), "% of goals reached in total.")

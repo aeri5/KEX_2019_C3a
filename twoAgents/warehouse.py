@@ -64,10 +64,10 @@ class Warehouse(tkinter.Tk, object):
 		# print("restart")
 
 	def collision(self, index):
-		if [agents[index].x, agents[index].y] in obstacleCoords or [agents[index].x, agents[index].y] == [agents[(index+1)%2], agents[(index+1)%2]]: #Agent collided with obstacle or another agent
+		if [agents[index].x, agents[index].y] in obstacleCoords or [agents[index].x, agents[index].y] == [agents[(index+1)%2].x, agents[(index+1)%2].y]: #Agent collided with obstacle or another agent
 			return True, False
 		elif [agents[index].x, agents[index].y] == goalCoords[index]:	#Agent reached its goal
-			return True, True
+			return False, True
 		else:	#No collision and goal not reached
 			return False, False
 

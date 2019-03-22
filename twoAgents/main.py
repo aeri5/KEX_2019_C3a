@@ -17,10 +17,11 @@ episodes = 0
 goalsReached = 0
 oldState = [[0,9], [0,0]]
 nextState = [[0,0], [0,0]]
+totalReward = [0, 0]
 
 def doStep(index):
-	global episodes, goalsReached, oldState, nextState
-	if episodes%1000 == 0:
+	global episodes, goalsReached, oldState, nextState, totalReward
+	if episodes%10000 == 0:
 		time.sleep(0.05)
 	while True:
 		if random.uniform(0,1)<qTables[index].epsilon:
@@ -32,26 +33,27 @@ def doStep(index):
 		else:
 			break
 
-	print("index:", index, ", action:", action)
+	# print("Agent:", index, " in state:", oldState[index], " makes action:", actionsDict[action])
 	w.moveAgent(index, action)
-	if episodes%1000 == 0:
+	if episodes%10000 == 0:
 		w.update()
 	nextState[index] = w.getAgentCoords(index)
 
 	collision, goalReached = w.collision(index)
 	reward = w.reward(index)
+	totalReward[index] += reward
 
 	qTables[index].updateQTable(oldState[index], action, reward, nextState[index])
 	# print(oldState)
 
-	if collision or goalReached:
-		if goalReached:
-			outputStr = "Episode " + str(episodes) + ": Goal reached!"
-			goalsReached += 1
-		else:
-			outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState[index]) + "."
-		dataLog.append([str(episodes), str(goalsReached)])
-		# print(outputStr) 
+	# if collision or goalReached:
+	# 	if goalReached:
+	# 		outputStr = "Episode " + str(episodes) + ": Goal reached!"
+	# 		goalsReached += 1
+	# 	else:
+	# 		outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState[index]) + "."
+	# 	dataLog.append([str(episodes), str(goalsReached)])
+	#	print(outputStr) 
 
 	oldState[index] = nextState[index]
 
@@ -64,28 +66,34 @@ try:
 		episodes += 1
 		oldState[0] = w.getAgentCoords(0)
 		oldState[1] = w.getAgentCoords(1)
-
+		totalReward = [0, 0]
 		goal0 = False
 		goal1 = False
+		coll0 = False
+		coll1 = False
 		while True:
+			# print("goal 0:", goal0, "goal1:", goal1, "coll0:", coll0, "coll1", coll1)
 			if not goal0:
 				coll0, goal0 = doStep(0)
 			if not goal1:
 				coll1, goal1 = doStep(1)
-			if coll0 or coll1:
+			if coll0 or coll1 or (goal0 and goal1):
 				break
 
-		if episodes%100 == 0:
+		dataLog.append([str(episodes), str(totalReward[0]), str(totalReward[1])])
+
+		if episodes%3000 == 0:
 			for qTable in qTables:
 				qTable.updateEpsilon()
-			print(str(episodes), "episodes with ", str(round(100*goalsReached/episodes)), "% of goals reached in total.")
+			print(str(episodes), ":th episode with rewards", totalReward[0], "and", totalReward[1])
+			print("goal 0:", goal0, "   goal1:", goal1, "         coll0:", coll0, "   coll1:", coll1, "\n")
 
 	w.mainloop()
 
 except KeyboardInterrupt:
 		with open('data.csv', 'w', newline='') as dataFile:
 		    writer = csv.writer(dataFile)
-		    writer.writerow("eg")
+		    writer.writerow("err")
 		    writer.writerows(dataLog)
 		dataFile.close()	
 		# np.round(qTable.qTable, 4)

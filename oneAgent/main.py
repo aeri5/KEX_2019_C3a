@@ -17,10 +17,12 @@ try:
 	dataLog = []
 	episodes = 0
 	goalsReached = 0
+
 	while True:
 		w.restart(0)
 		episodes += 1
 		oldState = w.getAgentCoords(0)
+		totalReward = 0
 
 		while True:
 			# time.sleep(0.05)
@@ -40,6 +42,7 @@ try:
 
 			collision, goalReached = w.collision(0)
 			reward = w.reward(0)
+			totalReward += reward
 
 			qTable.updateQTable(oldState, action, reward, nextState)
 			# print(oldState)
@@ -50,7 +53,7 @@ try:
 					goalsReached += 1
 				else:
 					outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState) + "."
-				dataLog.append([str(episodes), str(goalsReached)])
+				dataLog.append([str(episodes), str(totalReward)])
 				# print(outputStr)
 				break
 
@@ -59,46 +62,46 @@ try:
 		if episodes%10 == 0:
 			qTable.updateEpsilon()
 			print(str(qTable.epsilon))
-			print(str(episodes), "episodes with ", str(round(100*goalsReached/episodes)), "% of goals reached in total.")
+			print(str(episodes), "episodes with a total reward of", str(totalReward))
 
-		if episodes%250 == 0:
-			w.restart(0)
-			episodes += 1
-			oldState = w.getAgentCoords(0)
+		# if episodes%250 == 0:
+		# 	w.restart(0)
+		# 	episodes += 1
+		# 	oldState = w.getAgentCoords(0)
 
-			while True:
-				time.sleep(0.1)
-				while True:
-					if random.uniform(0,1)<qTable.epsilon:
-						action = random.randint(0, 4)
-					else:
-						action = qTable.findBestAction(oldState)
-					if (oldState[0] == 0 and action == 3) or (oldState[1] == 0 and action == 0) or (oldState[0] == warehouseSize[0]-1 and action == 1) or (oldState[1] == warehouseSize[1]-1 and action == 2):
-						continue
-					else:
-						break
+		# 	while True:
+		# 		time.sleep(0.1)
+		# 		while True:
+		# 			if random.uniform(0,1)<qTable.epsilon:
+		# 				action = random.randint(0, 4)
+		# 			else:
+		# 				action = qTable.findBestAction(oldState)
+		# 			if (oldState[0] == 0 and action == 3) or (oldState[1] == 0 and action == 0) or (oldState[0] == warehouseSize[0]-1 and action == 1) or (oldState[1] == warehouseSize[1]-1 and action == 2):
+		# 				continue
+		# 			else:
+		# 				break
 
-				w.moveAgent(0, action)
-				w.update()
-				nextState = w.getAgentCoords(0)
+		# 		w.moveAgent(0, action)
+		# 		w.update()
+		# 		nextState = w.getAgentCoords(0)
 
-				collision, goalReached = w.collision(0)
-				reward = w.reward(0)
+		# 		collision, goalReached = w.collision(0)
+		# 		reward = w.reward(0)
 
-				qTable.updateQTable(oldState, action, reward, nextState)
-				# print(oldState)
+		# 		qTable.updateQTable(oldState, action, reward, nextState)
+		# 		# print(oldState)
 
-				if collision:
-					if goalReached:
-						outputStr = "Episode " + str(episodes) + ": Goal reached!"
-						goalsReached += 1
-					else:
-						outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState) + "."
-					dataLog.append([str(episodes), str(goalsReached)])
-					# print(outputStr)
-					break
+		# 		if collision:
+		# 			if goalReached:
+		# 				outputStr = "Episode " + str(episodes) + ": Goal reached!"
+		# 				goalsReached += 1
+		# 			else:
+		# 				outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState) + "."
+		# 			dataLog.append([str(episodes), str(goalsReached)])
+		# 			# print(outputStr)
+		# 			break
 
-				oldState = nextState
+		# 		oldState = nextState
 
 
 
@@ -107,7 +110,7 @@ try:
 except KeyboardInterrupt:
 	with open('data.csv', 'w', newline='') as dataFile:
 	    writer = csv.writer(dataFile)
-	    writer.writerow("eg")
+	    writer.writerow("er")
 	    writer.writerows(dataLog)
 	dataFile.close()	
 	# np.round(qTable.qTable, 4)

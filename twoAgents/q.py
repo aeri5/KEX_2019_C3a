@@ -48,5 +48,6 @@ class QTable():
 		return rowIndex
 
 	def updateEpsilon(self):
+		print("epsilon =", str(self.epsilon))
 		if self.epsilon > self.epsilonMin:
 			self.epsilon = self.epsilon*0.95

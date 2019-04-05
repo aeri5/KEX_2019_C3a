@@ -18,12 +18,10 @@ try:
 	dataLog = []
 	episodes = 0
 	goalsReached = 0
-
 	while True:
 		w.restart(0)
 		episodes += 1
 		oldState = w.getAgentCoords(0)
-		totalReward = 0
 
 		while True:
 			
@@ -45,7 +43,6 @@ try:
 
 			collision, goalReached = w.collision(0)
 			reward = w.reward(0)
-			totalReward += reward
 
 			dqn.remember(oldState, action, reward, nextState, collision, goalReached)
 
@@ -58,66 +55,14 @@ try:
 					goalsReached += 1
 				else:
 					outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState) + "."
-<<<<<<< HEAD
 				dataLog.append([str(episodes), str(goalsReached)])
 				# print(outputStr, "\n")
-=======
-				dataLog.append([str(episodes), str(totalReward)])
-				# print(outputStr)
->>>>>>> 0069383b58f7c69a54d1dec009a8f260cc382eda
 				break
 
 			oldState = nextState
 
-<<<<<<< HEAD
 			if len(dqn.memory) > batchSize:
 				dqn.replay(batchSize)
-=======
-		if episodes%10 == 0:
-			qTable.updateEpsilon()
-			print(str(qTable.epsilon))
-			print(str(episodes), "episodes with a total reward of", str(totalReward))
-
-		# if episodes%250 == 0:
-		# 	w.restart(0)
-		# 	episodes += 1
-		# 	oldState = w.getAgentCoords(0)
-
-		# 	while True:
-		# 		time.sleep(0.1)
-		# 		while True:
-		# 			if random.uniform(0,1)<qTable.epsilon:
-		# 				action = random.randint(0, 4)
-		# 			else:
-		# 				action = qTable.findBestAction(oldState)
-		# 			if (oldState[0] == 0 and action == 3) or (oldState[1] == 0 and action == 0) or (oldState[0] == warehouseSize[0]-1 and action == 1) or (oldState[1] == warehouseSize[1]-1 and action == 2):
-		# 				continue
-		# 			else:
-		# 				break
-
-		# 		w.moveAgent(0, action)
-		# 		w.update()
-		# 		nextState = w.getAgentCoords(0)
-
-		# 		collision, goalReached = w.collision(0)
-		# 		reward = w.reward(0)
-
-		# 		qTable.updateQTable(oldState, action, reward, nextState)
-		# 		# print(oldState)
-
-		# 		if collision:
-		# 			if goalReached:
-		# 				outputStr = "Episode " + str(episodes) + ": Goal reached!"
-		# 				goalsReached += 1
-		# 			else:
-		# 				outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState) + "."
-		# 			dataLog.append([str(episodes), str(goalsReached)])
-		# 			# print(outputStr)
-		# 			break
-
-		# 		oldState = nextState
-
->>>>>>> 0069383b58f7c69a54d1dec009a8f260cc382eda
 
 		if episodes % 25 == 0:
 			print("epsilon:", dqn.epsilon)
@@ -128,7 +73,7 @@ try:
 except KeyboardInterrupt:
 	with open('data.csv', 'w', newline='') as dataFile:
 	    writer = csv.writer(dataFile)
-	    writer.writerow("er")
+	    writer.writerow("eg")
 	    writer.writerows(dataLog)
 	dataFile.close()	
 	# np.round(qTable.qTable, 4)

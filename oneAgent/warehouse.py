@@ -1,11 +1,11 @@
 import tkinter
 from agent import *
 
-obstacleCoords = [[2,2], [3,2], [4,2], [5,2], [7,2], [7,3], [7,4], [3,4], [4,4], [5,4]] #[[x, y], [x, y], ...]
+obstacleCoords = [] #[[2,2], [3,2], [4,2], [5,2], [7,2], [7,3], [7,4], [3,4], [4,4], [5,4]] #[[x, y], [x, y], ...]
 obstacles = []
-agentCoords = [[0,9]] #[[x, y], [x, y], ...] (agent start locations)
+agentCoords = [[0,3]] #[[x, y], [x, y], ...] (agent start locations)
 agents = []
-goalCoords = [[9, 0]]
+goalCoords = [[3, 0]]
 goals = []
 
 class Warehouse(tkinter.Tk, object):
@@ -24,8 +24,9 @@ class Warehouse(tkinter.Tk, object):
 			self.canvas.create_line(0, i*self.squareDim, self.windowSize[0], i*self.squareDim, fill="#444444")
 
 		#init shelves
-		for obstacle in obstacleCoords:
-			obstacles.append(self.canvas.create_rectangle(obstacle[0]*self.squareDim+1, obstacle[1]*self.squareDim+1, (obstacle[0]+1)*self.squareDim-1, (obstacle[1]+1)*self.squareDim-1, fill="#444444", outline="#444444"))
+		if len(obstacleCoords) > 0:
+			for obstacle in obstacleCoords:
+				obstacles.append(self.canvas.create_rectangle(obstacle[0]*self.squareDim+1, obstacle[1]*self.squareDim+1, (obstacle[0]+1)*self.squareDim-1, (obstacle[1]+1)*self.squareDim-1, fill="#444444", outline="#444444"))
 
 		#init agent
 		agentCounter = 0

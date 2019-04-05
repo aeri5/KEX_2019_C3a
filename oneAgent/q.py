@@ -11,7 +11,6 @@ class QTable():
 		self.alpha = 0.1
 
 		self.epsilon = 0.9
-		self.epsilonMax = 1.0
 		self.epsilonMin = 0.1
 
 		# for i in range(0, tableHeight):

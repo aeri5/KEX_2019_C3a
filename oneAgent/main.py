@@ -1,5 +1,4 @@
 from warehouse import *
-from q import *
 from deepQ import *
 import random
 import time
@@ -22,6 +21,7 @@ try:
 		w.restart(0)
 		episodes += 1
 		oldState = w.getAgentCoords(0)
+		totalReward = 0
 
 		while True:
 			
@@ -43,6 +43,7 @@ try:
 
 			collision, goalReached = w.collision(0)
 			reward = w.reward(0)
+			totalReward += reward
 
 			dqn.remember(oldState, action, reward, nextState, collision, goalReached)
 
@@ -66,7 +67,7 @@ try:
 
 		if episodes % 25 == 0:
 			print("epsilon:", dqn.epsilon)
-			print(str(episodes), "episodes with ", str(round(100*goalsReached/episodes)), "% of goals reached in total.")
+			print(str(episodes), "episodes with ", str(round(100*goalsReached/episodes)), "% of goals reached in total and a reward of ", totalReward, "for the last episode.")
 
 	w.mainloop()
 

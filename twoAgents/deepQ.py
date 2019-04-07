@@ -11,14 +11,17 @@ sess = tf.InteractiveSession()
 
 class dqn():
 	def __init__(self):
+
 		self.gamma = 0.95
 		self.alpha = 0.001
 		self.epsilon = 1.0
 		self.epsilonMin = 0.01
 		self.epsilonDecay = 0.995
+
 		self.memory = deque(maxlen = 2000)
 
 		self.model = Sequential()
+
 		self.model.add(Dense(24, input_dim=2, activation='relu'))
 		self.model.add(Dense(24, activation='relu'))
 		self.model.add(Dense(5, activation='linear'))
@@ -51,8 +54,11 @@ class dqn():
 
 			self.model.fit(np.reshape(np.asarray(state), [1, 2]), targetF, epochs=1, verbose=0)
 
+
+	def updateEpsilon(self):
 		if self.epsilon > self.epsilonMin:
 			self.epsilon *= self.epsilonDecay
+
 
 
 

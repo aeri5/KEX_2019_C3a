@@ -1,11 +1,11 @@
 import tkinter
 from agent import *
 
-obstacleCoords = [[2,2], [3,2], [4,2], [5,2], [7,2], [7,3], [7,4], [3,4], [4,4], [5,4], [4, 9], [4, 8], [4, 7]] #[[x, y], [x, y], ...]
+obstacleCoords = [] #[[x, y], [x, y], ...]
 obstacles = []
-agentCoords = [[0,9], [0,0]] #[[x, y], [x, y], ...] (agent start locations)
+agentCoords = [[0,3], [0,0]] #[[x, y], [x, y], ...] (agent start locations)
 agents = []
-goalCoords = [[9, 0], [9,9]]
+goalCoords = [[3, 0], [3,3]]
 goals = []
 
 class Warehouse(tkinter.Tk, object):
@@ -29,7 +29,7 @@ class Warehouse(tkinter.Tk, object):
 
 		#init goal
 		goals.append(self.canvas.create_rectangle(goalCoords[0][0]*self.squareDim+1, goalCoords[0][1]*self.squareDim+1, (goalCoords[0][0]+1)*self.squareDim-1, (goalCoords[0][1]+1)*self.squareDim-1, fill="#db3b23", outline="#db3b23", tags="goal0"))
-		goals.append(self.canvas.create_rectangle(goalCoords[1][0]*self.squareDim+1, goalCoords[1][1]*self.squareDim+1, (goalCoords[1][0]+1)*self.squareDim-1, (goalCoords[1][1]+1)*self.squareDim-1, fill="#4d95cc", outline="#4d95cc", tags="goal1"))	
+		goals.append(self.canvas.create_rectangle(goalCoords[1][0]*self.squareDim+1, goalCoords[1][1]*self.squareDim+1, (goalCoords[1][0]+1)*self.squareDim-1, (goalCoords[1][1]+1)*self.squareDim-1, fill="#2455b7", outline="#2455b7", tags="goal1"))	
 
 		#init agent
 		agents.append(Agent(agentCoords[0][0], agentCoords[0][1], self.canvas.create_rectangle(agentCoords[0][0]*self.squareDim+1, agentCoords[0][1]*self.squareDim+1, (agentCoords[0][0]+1)*self.squareDim-1, (agentCoords[0][1]+1)*self.squareDim-1, fill="#eda061", outline="#eda061", tags="agent0")))			
@@ -64,7 +64,7 @@ class Warehouse(tkinter.Tk, object):
 		# print("restart")
 
 	def collision(self, index):
-		if [agents[index].x, agents[index].y] in obstacleCoords or [agents[index].x, agents[index].y] == [agents[(index+1)%2].x, agents[(index+1)%2].y]: #Agent collided with obstacle or another agent
+		if ([agents[index].x, agents[index].y] in obstacleCoords) or ([agents[index].x, agents[index].y] == [agents[(index+1)%2].x, agents[(index+1)%2].y]) or (agents[index].x < 0 or agents[index].x > self.warehouseSize[0]-1 or agents[index].y < 0 or agents[index].y > self.warehouseSize[1]-1): #Agent collided with obstacle, wall, or another agent
 			return True, False
 		elif [agents[index].x, agents[index].y] == goalCoords[index]:	#Agent reached its goal
 			return False, True

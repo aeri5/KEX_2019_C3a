@@ -22,46 +22,41 @@ class dqn():
 
 		self.model = Sequential()
 
-		self.model.add(Dense(24, input_dim=2, activation='relu'))
+		self.model.add(Dense(24, input_dim=3, activation='relu'))
 		self.model.add(Dense(24, activation='relu'))
 		self.model.add(Dense(5, activation='linear'))
 		self.model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
 
 
-	def pickAction(self, state):
+	def pickAction(self, state, agentCloseBy):
 		global sess
 		if np.random.rand() <= self.epsilon:
 			randAction = randint(0, 4)
 			return randAction
 		else:
-			actions = self.model.predict(np.reshape(np.asarray(state), [1, 2]))
+			actions = self.model.predict(np.reshape(np.asarray(state+[agentCloseBy]), [1, 3]))
 			return np.argmax(actions[0])
 
 
-	def remember(self, state, action, reward, nextState, collision, goalReached):
-		self.memory.append([state, action, reward, nextState, collision, goalReached])
+	def remember(self, state, action, agentCloseBy, agentCloseBy2, reward, nextState, collision, goalReached):
+		self.memory.append([state, action, agentCloseBy, agentCloseBy2, reward, nextState, collision, goalReached])
 
 
 	def replay(self, batchSize):
 		miniBatch = sample(self.memory, batchSize)
 
-		for state, action, reward, nextState, collision, goalReached in miniBatch:
+		for state, action, agentCloseBy, agentCloseBy2, reward, nextState, collision, goalReached in miniBatch:
 			target = reward
 			if not (collision or goalReached):
-			  target = reward + self.gamma * np.amax(self.model.predict(np.reshape(np.asarray(nextState), [1, 2]))[0])
-			targetF = self.model.predict(np.reshape(np.asarray(state), [1, 2]))
+				networkInputNext = nextState + [agentCloseBy2]
+				target = reward + self.gamma * np.amax(self.model.predict(np.reshape(np.asarray(networkInputNext), [1, 3]))[0])
+			networkInput = state + [agentCloseBy]
+			targetF = self.model.predict(np.reshape(np.asarray(networkInput), [1, 3]))
 			targetF[0][action] = target
 
-			self.model.fit(np.reshape(np.asarray(state), [1, 2]), targetF, epochs=1, verbose=0)
+			self.model.fit(np.reshape(np.asarray(networkInput), [1, 3]), targetF, epochs=1, verbose=0)
 
 
 	def updateEpsilon(self):
 		if self.epsilon > self.epsilonMin:
 			self.epsilon *= self.epsilonDecay
-
-
-
-
-	def stateToRowIndex(self, state):
-		rowIndex = state[1]*10 + state[0]
-		return rowIndex

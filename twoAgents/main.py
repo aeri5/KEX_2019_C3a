@@ -27,10 +27,14 @@ def doStep(index):
 	if episodes%50 == 0:
 		time.sleep(0.05)
 
-	action = dqn[index].pickAction(oldState[index])
+	agentCloseBy = w.agentCloseBy(index)
+
+	action = dqn[index].pickAction(oldState[index], agentCloseBy)
 	# print("Agent:", index, " in state:", oldState[index], " makes action:", actionsDict[action])
+
 	w.moveAgent(index, action)
 
+	agentCloseBy2 = w.agentCloseBy(index)
 
 	if episodes%50 == 0:
 		w.update()
@@ -41,16 +45,7 @@ def doStep(index):
 	reward = w.reward(index)
 	totalReward[index] += reward
 
-	dqn[index].remember(oldState[index], action, reward, nextState[index], collision, goalReached)
-
-	# if collision or goalReached:
-	# 	if goalReached:
-	# 		outputStr = "Episode " + str(episodes) + ": Goal reached!"
-	# 		goalsReached += 1
-	# 	else:
-	# 		outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState[index]) + "."
-	# 	dataLog.append([str(episodes), str(goalsReached)])
-	#	print(outputStr) 
+	dqn[index].remember(oldState[index], action, agentCloseBy, agentCloseBy2, reward, nextState[index], collision, goalReached)
 
 	oldState[index] = nextState[index]
 
@@ -84,13 +79,11 @@ try:
 				break
 			elif coll0 or coll1:
 				break
+		
+		for network in dqn:
+			network.updateEpsilon()
 
-		# dataLog.append([str(episodes), str(totalReward[0]), str(totalReward[1])])
-		if episodes % 3 == 0:
-			for network in dqn:
-				network.updateEpsilon()
-
-		if episodes%25 == 0:
+		if episodes%50 == 0:
 			print("epsilon: ", round(dqn[0].epsilon, 4), round(dqn[1].epsilon, 4))
 			print(str(episodes), ":th episode with rewards", totalReward[0], "and", totalReward[1])
 			print("Percentage of goals reached in total:", str(round(100*goalsReached/episodes)))

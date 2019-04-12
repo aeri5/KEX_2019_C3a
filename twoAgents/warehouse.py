@@ -38,6 +38,7 @@ class Warehouse(tkinter.Tk, object):
 
 		self.canvas.pack()
 
+
 	def moveAgent(self, index, action):
 		if action == 0:
 			self.canvas.move(agents[index].tkID, 0, -self.squareDim)
@@ -84,3 +85,16 @@ class Warehouse(tkinter.Tk, object):
 	def getAgentCoords(self, index):
 		return [agents[index].x, agents[index].y]
 
+	def agentCloseBy(self, index):
+		currentAgentCoords = self.getAgentCoords(index)
+		for otherAgent in agents:
+			if otherAgent.y == currentAgentCoords[1]-1: #another agent above
+				return 0
+			elif otherAgent.x == currentAgentCoords[0]+1: #another agent to the right
+				return 1
+			elif otherAgent.y == currentAgentCoords[1]+1: #another agent below
+				return 2
+			elif otherAgent.x == currentAgentCoords[0]-1: #another agent to the left
+				return 3
+			else:	#no other agent close by
+				return 4

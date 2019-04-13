@@ -23,34 +23,27 @@ batchSize = 64
 
 def doStep(index):
 	global episodes, goalsReached, oldState, nextState, totalReward
-
-	if episodes%50 == 0:
-		time.sleep(0.05)
-
-	agentCloseBy = w.agentCloseBy(index)
+	agentCloseBy = w.agentCloseBy(index, oldState[index])
 
 	action = dqn[index].pickAction(oldState[index], agentCloseBy)
-	# print("Agent:", index, " in state:", oldState[index], " makes action:", actionsDict[action])
 
-	w.moveAgent(index, action)
+	nextState[index] = w.nextCoords(index, action)
+	agentCloseBy2 = w.agentCloseBy(index, nextState[index])
 
-	agentCloseBy2 = w.agentCloseBy(index)
-
-	if episodes%50 == 0:
-		w.update()
-
-	nextState[index] = w.getAgentCoords(index)
-
-	collision, goalReached = w.collision(index)
-	reward = w.reward(index)
+	collision, goalReached, reward = w.collision(index, nextState[index])
 	totalReward[index] += reward
 
 	dqn[index].remember(oldState[index], action, agentCloseBy, agentCloseBy2, reward, nextState[index], collision, goalReached)
 
-	oldState[index] = nextState[index]
-
 	if len(dqn[index].memory) > batchSize:
 		dqn[index].replay(batchSize)
+
+	if not collision:
+		oldState[index] = nextState[index]
+		w.moveAgent(index, action)
+		# if episodes%1==0:
+		# 	time.sleep(0.1)
+		# 	w.update()
 
 	return collision, goalReached
 
@@ -74,19 +67,18 @@ try:
 				coll0, goal0 = doStep(0)
 			if not goal1:
 				coll1, goal1 = doStep(1)
-			if (goal0 and goal1):
+			if goal0 and goal1:
 				goalsReached += 1
 				break
-			elif coll0 or coll1:
+			elif (coll0 and coll1) or (coll0 and goal1) or (coll1 and goal0):
 				break
 		
 		for network in dqn:
 			network.updateEpsilon()
 
-		if episodes%50 == 0:
+		if episodes%1 == 0:
 			print("epsilon: ", round(dqn[0].epsilon, 4), round(dqn[1].epsilon, 4))
-			print(str(episodes), ":th episode with rewards", totalReward[0], "and", totalReward[1])
-			print("Percentage of goals reached in total:", str(round(100*goalsReached/episodes)))
+			print(str(episodes), ":th episode with a collective accumulated reward of", str(totalReward[0] + totalReward[1]))
 			print("goal 0:", goal0, "   goal1:", goal1, "         coll0:", coll0, "   coll1:", coll1, "\n")
 
 	w.mainloop()

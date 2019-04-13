@@ -16,7 +16,7 @@ class dqn():
 		self.alpha = 0.001
 		self.epsilon = 1.0
 		self.epsilonMin = 0.01
-		self.epsilonDecay = 0.995
+		self.epsilonDecay = 0.99
 
 		self.memory = deque(maxlen = 2000)
 

@@ -39,6 +39,22 @@ class Warehouse(tkinter.Tk, object):
 		self.canvas.pack()
 
 
+	def nextCoords(self, index, action):
+		nextCoords = self.getAgentCoords(index)
+		if action == 0:
+			nextCoords[1] = nextCoords[1] - 1
+		elif action == 1:
+			nextCoords[0] = nextCoords[0] + 1
+		elif action == 2:
+			nextCoords[1] = nextCoords[1] + 1
+		elif action == 3:
+			nextCoords[0] = nextCoords[0] - 1
+		elif action == 4:
+			nextCoords = nextCoords
+		else:
+			raise ValueError("Incorrect movement")
+		return nextCoords
+
 	def moveAgent(self, index, action):
 		if action == 0:
 			self.canvas.move(agents[index].tkID, 0, -self.squareDim)
@@ -58,43 +74,40 @@ class Warehouse(tkinter.Tk, object):
 			raise ValueError("Incorrect movement")
 		# print(agents[index].x, "x", agents[index].y)
 
+
 	def restart(self, index):
 		agents[index].x = agentCoords[index][0]
 		agents[index].y = agentCoords[index][1]
 		self.canvas.coords(agents[index].tkID, agentCoords[index][0]*self.squareDim+1, agentCoords[index][1]*self.squareDim+1, (agentCoords[index][0]+1)*self.squareDim-1, (agentCoords[index][1]+1)*self.squareDim-1)
 		# print("restart")
 
-	def collision(self, index):
-		if ([agents[index].x, agents[index].y] in obstacleCoords) or ([agents[index].x, agents[index].y] == [agents[(index+1)%2].x, agents[(index+1)%2].y]) or (agents[index].x < 0 or agents[index].x > self.warehouseSize[0]-1 or agents[index].y < 0 or agents[index].y > self.warehouseSize[1]-1): #Agent collided with obstacle, wall, or another agent
-			return True, False
-		elif [agents[index].x, agents[index].y] == goalCoords[index]:	#Agent reached its goal
-			return False, True
-		else:	#No collision and goal not reached
-			return False, False
 
-	def reward(self, index):
-		reward = -1
-		collision, goalReached = self.collision(index)
-		if collision:
-				reward = -50		
-		elif goalReached:
-				reward = 50
+	def collision(self, index, coords):
+		otherAgents = agents[:index] + agents[index+1:]
+		if (coords in obstacleCoords) or (coords in [[otherAgent.x, otherAgent.y] for otherAgent in otherAgents]) or (coords[0] < 0 or coords[0] > self.warehouseSize[0]-1 or coords[1] < 0 or coords[1] > self.warehouseSize[1]-1): #Agent collided with obstacle, another agent, or a wall
+			return True, False, -50
 
-		return reward
+		elif coords == goalCoords[index]:	#Agent reached its goal
+			return False, True, 50
+
+		else:	#No collision, goal not reached
+			return False, False, -1
+
 
 	def getAgentCoords(self, index):
 		return [agents[index].x, agents[index].y]
 
-	def agentCloseBy(self, index):
-		currentAgentCoords = self.getAgentCoords(index)
-		for otherAgent in agents:
-			if otherAgent.y == currentAgentCoords[1]-1: #another agent above
+
+	def agentCloseBy(self, index, coords):
+		otherAgents = agents[:index] + agents[index+1:]
+		for otherAgent in otherAgents:
+			if otherAgent.y == coords[1]-1: #another agent above
 				return 0
-			elif otherAgent.x == currentAgentCoords[0]+1: #another agent to the right
+			elif otherAgent.x == coords[0]+1: #another agent to the right
 				return 1
-			elif otherAgent.y == currentAgentCoords[1]+1: #another agent below
+			elif otherAgent.y == coords[1]+1: #another agent below
 				return 2
-			elif otherAgent.x == currentAgentCoords[0]-1: #another agent to the left
+			elif otherAgent.x == coords[0]-1: #another agent to the left
 				return 3
 			else:	#no other agent close by
 				return 4

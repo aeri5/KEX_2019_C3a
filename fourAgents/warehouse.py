@@ -1,11 +1,11 @@
 import tkinter
 from agent import *
 
-obstacleCoords = [] #[[x, y], [x, y], ...]
+obstacleCoords = [] # [[x, y], [x, y], ...]
 obstacles = []
-agentCoords = [[0,4], [0,0], [4,1], [4,3]] #[[x, y], [x, y], ...] (agent start locations)
+agentCoords = [[0,4], [0,0], [4,1], [4,3]] # [[x, y], [x, y], ...] (agent start locations)  [[0,4], [0,0], [4,1], [4,3]]
 agents = []
-goalCoords = [[4, 0], [4,4], [0, 1], [0,3]]
+goalCoords = [[0,4], [0,0], [4,1], [4,3]] # [[0,4], [0,0], [4,1], [4,3]]
 goals = []
 
 class Warehouse(tkinter.Tk, object):
@@ -14,7 +14,7 @@ class Warehouse(tkinter.Tk, object):
 		self.warehouseSize = warehouseSize
 		self.squareDim = squareDim
 		self.windowSize = [self.squareDim*self.warehouseSize[0], self.squareDim*self.warehouseSize[1]] #[width, height]
-		self.title("Warehouse sim with one agent")
+		self.title("Warehouse sim")
 		self.canvas = tkinter.Canvas(self, bg="#b7b7b7", width = self.windowSize[0], height = self.windowSize[1])
 		
 		#draw grid
@@ -30,17 +30,34 @@ class Warehouse(tkinter.Tk, object):
 		#init goal
 		goals.append(self.canvas.create_rectangle(goalCoords[0][0]*self.squareDim+1, goalCoords[0][1]*self.squareDim+1, (goalCoords[0][0]+1)*self.squareDim-1, (goalCoords[0][1]+1)*self.squareDim-1, fill="#db3b23", outline="#db3b23", tags="goal0"))
 		goals.append(self.canvas.create_rectangle(goalCoords[1][0]*self.squareDim+1, goalCoords[1][1]*self.squareDim+1, (goalCoords[1][0]+1)*self.squareDim-1, (goalCoords[1][1]+1)*self.squareDim-1, fill="#2455b7", outline="#2455b7", tags="goal1"))	
-		goals.append(self.canvas.create_rectangle(goalCoords[2][0]*self.squareDim+1, goalCoords[2][1]*self.squareDim+1, (goalCoords[2][0]+1)*self.squareDim-1, (goalCoords[2][1]+1)*self.squareDim-1, fill="#d6cc46", outline="#d6cc46", tags="goal2"))
-		goals.append(self.canvas.create_rectangle(goalCoords[3][0]*self.squareDim+1, goalCoords[3][1]*self.squareDim+1, (goalCoords[3][0]+1)*self.squareDim-1, (goalCoords[3][1]+1)*self.squareDim-1, fill="#2455b7", outline="#2455b7", tags="goal3"))	
+		goals.append(self.canvas.create_rectangle(goalCoords[2][0]*self.squareDim+1, goalCoords[2][1]*self.squareDim+1, (goalCoords[2][0]+1)*self.squareDim-1, (goalCoords[2][1]+1)*self.squareDim-1, fill="#8cc160", outline="#8cc160", tags="goal2"))
+		goals.append(self.canvas.create_rectangle(goalCoords[3][0]*self.squareDim+1, goalCoords[3][1]*self.squareDim+1, (goalCoords[3][0]+1)*self.squareDim-1, (goalCoords[3][1]+1)*self.squareDim-1, fill="#ce618e", outline="#ce618e", tags="goal3"))	
 
 		#init agent
 		agents.append(Agent(agentCoords[0][0], agentCoords[0][1], self.canvas.create_rectangle(agentCoords[0][0]*self.squareDim+1, agentCoords[0][1]*self.squareDim+1, (agentCoords[0][0]+1)*self.squareDim-1, (agentCoords[0][1]+1)*self.squareDim-1, fill="#eda061", outline="#eda061", tags="agent0")))			
 		agents.append(Agent(agentCoords[1][0], agentCoords[1][1], self.canvas.create_rectangle(agentCoords[1][0]*self.squareDim+1, agentCoords[1][1]*self.squareDim+1, (agentCoords[1][0]+1)*self.squareDim-1, (agentCoords[1][1]+1)*self.squareDim-1, fill="#91cbf7", outline="#91cbf7", tags="agent1")))
-		agents.append(Agent(agentCoords[2][0], agentCoords[2][1], self.canvas.create_rectangle(agentCoords[2][0]*self.squareDim+1, agentCoords[2][1]*self.squareDim+1, (agentCoords[2][0]+1)*self.squareDim-1, (agentCoords[2][1]+1)*self.squareDim-1, fill="#fff789", outline="#fff789", tags="agent2")))			
-		agents.append(Agent(agentCoords[3][0], agentCoords[3][1], self.canvas.create_rectangle(agentCoords[3][0]*self.squareDim+1, agentCoords[3][1]*self.squareDim+1, (agentCoords[3][0]+1)*self.squareDim-1, (agentCoords[3][1]+1)*self.squareDim-1, fill="#91cbf7", outline="#91cbf7", tags="agent3")))
+		agents.append(Agent(agentCoords[2][0], agentCoords[2][1], self.canvas.create_rectangle(agentCoords[2][0]*self.squareDim+1, agentCoords[2][1]*self.squareDim+1, (agentCoords[2][0]+1)*self.squareDim-1, (agentCoords[2][1]+1)*self.squareDim-1, fill="#8ce29c", outline="#8ce29c", tags="agent2")))			
+		agents.append(Agent(agentCoords[3][0], agentCoords[3][1], self.canvas.create_rectangle(agentCoords[3][0]*self.squareDim+1, agentCoords[3][1]*self.squareDim+1, (agentCoords[3][0]+1)*self.squareDim-1, (agentCoords[3][1]+1)*self.squareDim-1, fill="#f9b8d3", outline="#f9b8d3", tags="agent3")))
 
 
 		self.canvas.pack()
+
+
+	def nextCoords(self, index, action):
+		nextCoords = self.getAgentCoords(index)
+		if action == 0:
+			nextCoords[1] = nextCoords[1] - 1
+		elif action == 1:
+			nextCoords[0] = nextCoords[0] + 1
+		elif action == 2:
+			nextCoords[1] = nextCoords[1] + 1
+		elif action == 3:
+			nextCoords[0] = nextCoords[0] - 1
+		elif action == 4:
+			nextCoords = nextCoords
+		else:
+			raise ValueError("Incorrect movement")
+		return nextCoords
 
 	def moveAgent(self, index, action):
 		if action == 0:
@@ -61,30 +78,40 @@ class Warehouse(tkinter.Tk, object):
 			raise ValueError("Incorrect movement")
 		# print(agents[index].x, "x", agents[index].y)
 
+
 	def restart(self, index):
 		agents[index].x = agentCoords[index][0]
 		agents[index].y = agentCoords[index][1]
 		self.canvas.coords(agents[index].tkID, agentCoords[index][0]*self.squareDim+1, agentCoords[index][1]*self.squareDim+1, (agentCoords[index][0]+1)*self.squareDim-1, (agentCoords[index][1]+1)*self.squareDim-1)
 		# print("restart")
 
-	def collision(self, index):
-		if ([agents[index].x, agents[index].y] in obstacleCoords) or ([agents[index].x, agents[index].y] == [agents[(index+1)%2].x, agents[(index+1)%2].y]) or (agents[index].x < 0 or agents[index].x > self.warehouseSize[0]-1 or agents[index].y < 0 or agents[index].y > self.warehouseSize[1]-1): #Agent collided with obstacle, wall, or another agent
-			return True, False
-		elif [agents[index].x, agents[index].y] == goalCoords[index]:	#Agent reached its goal
-			return False, True
-		else:	#No collision and goal not reached
-			return False, False
 
-	def reward(self, index):
-		reward = -1
-		collision, goalReached = self.collision(index)
-		if collision:
-				reward = -50		
-		elif goalReached:
-				reward = 50
+	def collision(self, index, coords):
+		otherAgents = agents[:index] + agents[index+1:]
+		if (coords in obstacleCoords) or (coords in [[otherAgent.x, otherAgent.y] for otherAgent in otherAgents]) or (coords[0] < 0 or coords[0] > self.warehouseSize[0]-1 or coords[1] < 0 or coords[1] > self.warehouseSize[1]-1): #Agent collided with obstacle, another agent, or a wall
+			return True, False, -50
 
-		return reward
+		elif coords == goalCoords[index]:	#Agent reached its goal
+			return False, True, 50
+
+		else:	#No collision, goal not reached
+			return False, False, -1
+
 
 	def getAgentCoords(self, index):
 		return [agents[index].x, agents[index].y]
 
+
+	def agentsCloseBy(self, index, coords):
+		otherAgentWhere = [0, 0, 0, 0]
+		otherAgents = agents[:index] + agents[index+1:]
+		for otherAgent in otherAgents:
+			if otherAgent.y == coords[1]-1: #another agent above
+				otherAgentWhere[0] = 1
+			elif otherAgent.x == coords[0]+1: #another agent to the right
+				otherAgentWhere[1] = 1
+			elif otherAgent.y == coords[1]+1: #another agent below
+				otherAgentWhere[2] = 1
+			elif otherAgent.x == coords[0]-1: #another agent to the left
+				otherAgentWhere[3] = 1
+		return otherAgentWhere

@@ -17,9 +17,9 @@ class dqn():
 		self.alpha = 0.001
 		self.epsilon = 1.0
 		self.epsilonMin = 0.001
-		self.epsilonDecay = 0.95	#oneagent .95, twoagents .98, fouragents .995
+		self.epsilonDecay = 0.99	#oneagent .95, twoagents .98, fouragents .995
 
-		self.memory = deque(maxlen = 2000)
+		self.memory = deque(maxlen = 1000)
 
 		self.model = Sequential()
 

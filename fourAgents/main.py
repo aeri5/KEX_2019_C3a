@@ -5,8 +5,8 @@ import time
 import sys
 import csv
 
-numberOfAgents = 4
-warehouseSize = [5,5] #[coloumns, rows]
+numberOfAgents = 1
+warehouseSize = [4,4] #[coloumns, rows]
 squareDim = 50 #pixels per square
 w = Warehouse(warehouseSize, squareDim)
 w.update()
@@ -18,7 +18,7 @@ episodes = 0
 oldState = [[0,0] for i in range(numberOfAgents)]
 nextState = [[0,0] for i in range(numberOfAgents)]
 totalReward = [0 for i in range(numberOfAgents)]
-batchSize = 64
+batchSize = 500
 
 def doStep(index):
 	global episodes, oldState, nextState, totalReward
@@ -40,9 +40,9 @@ def doStep(index):
 	if not collision:
 		oldState[index] = nextState[index]
 		w.moveAgent(index, action)
-		if episodes%10==0:
-			time.sleep(0.1)
-			w.update()
+		# if episodes%10==0:
+		# 	time.sleep(0.1)
+		# 	w.update()
 
 	return collision, goalReached
 

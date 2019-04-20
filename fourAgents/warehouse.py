@@ -3,9 +3,9 @@ from agent import *
 
 obstacleCoords = [] # [[x, y], [x, y], ...]
 obstacles = []
-agentCoords = [[0,4], [0,0], [4,1], [4,3]] # [[x, y], [x, y], ...] (agent start locations)  [[0,4], [0,0], [4,1], [4,3]]
+agentCoords = [[0,3]] # [[x, y], [x, y], ...] (agent start locations)  [[0,4], [0,0], [4,1], [4,3]]
 agents = []
-goalCoords = [[0,4], [0,0], [4,1], [4,3]] # [[0,4], [0,0], [4,1], [4,3]]
+goalCoords = [[3,0]] # [[0,4], [0,0], [4,1], [4,3]]
 goals = []
 
 class Warehouse(tkinter.Tk, object):
@@ -29,15 +29,15 @@ class Warehouse(tkinter.Tk, object):
 
 		#init goal
 		goals.append(self.canvas.create_rectangle(goalCoords[0][0]*self.squareDim+1, goalCoords[0][1]*self.squareDim+1, (goalCoords[0][0]+1)*self.squareDim-1, (goalCoords[0][1]+1)*self.squareDim-1, fill="#db3b23", outline="#db3b23", tags="goal0"))
-		goals.append(self.canvas.create_rectangle(goalCoords[1][0]*self.squareDim+1, goalCoords[1][1]*self.squareDim+1, (goalCoords[1][0]+1)*self.squareDim-1, (goalCoords[1][1]+1)*self.squareDim-1, fill="#2455b7", outline="#2455b7", tags="goal1"))	
-		goals.append(self.canvas.create_rectangle(goalCoords[2][0]*self.squareDim+1, goalCoords[2][1]*self.squareDim+1, (goalCoords[2][0]+1)*self.squareDim-1, (goalCoords[2][1]+1)*self.squareDim-1, fill="#8cc160", outline="#8cc160", tags="goal2"))
-		goals.append(self.canvas.create_rectangle(goalCoords[3][0]*self.squareDim+1, goalCoords[3][1]*self.squareDim+1, (goalCoords[3][0]+1)*self.squareDim-1, (goalCoords[3][1]+1)*self.squareDim-1, fill="#ce618e", outline="#ce618e", tags="goal3"))	
+		# goals.append(self.canvas.create_rectangle(goalCoords[1][0]*self.squareDim+1, goalCoords[1][1]*self.squareDim+1, (goalCoords[1][0]+1)*self.squareDim-1, (goalCoords[1][1]+1)*self.squareDim-1, fill="#2455b7", outline="#2455b7", tags="goal1"))	
+		# goals.append(self.canvas.create_rectangle(goalCoords[2][0]*self.squareDim+1, goalCoords[2][1]*self.squareDim+1, (goalCoords[2][0]+1)*self.squareDim-1, (goalCoords[2][1]+1)*self.squareDim-1, fill="#8cc160", outline="#8cc160", tags="goal2"))
+		# goals.append(self.canvas.create_rectangle(goalCoords[3][0]*self.squareDim+1, goalCoords[3][1]*self.squareDim+1, (goalCoords[3][0]+1)*self.squareDim-1, (goalCoords[3][1]+1)*self.squareDim-1, fill="#ce618e", outline="#ce618e", tags="goal3"))	
 
 		#init agent
 		agents.append(Agent(agentCoords[0][0], agentCoords[0][1], self.canvas.create_rectangle(agentCoords[0][0]*self.squareDim+1, agentCoords[0][1]*self.squareDim+1, (agentCoords[0][0]+1)*self.squareDim-1, (agentCoords[0][1]+1)*self.squareDim-1, fill="#eda061", outline="#eda061", tags="agent0")))			
-		agents.append(Agent(agentCoords[1][0], agentCoords[1][1], self.canvas.create_rectangle(agentCoords[1][0]*self.squareDim+1, agentCoords[1][1]*self.squareDim+1, (agentCoords[1][0]+1)*self.squareDim-1, (agentCoords[1][1]+1)*self.squareDim-1, fill="#91cbf7", outline="#91cbf7", tags="agent1")))
-		agents.append(Agent(agentCoords[2][0], agentCoords[2][1], self.canvas.create_rectangle(agentCoords[2][0]*self.squareDim+1, agentCoords[2][1]*self.squareDim+1, (agentCoords[2][0]+1)*self.squareDim-1, (agentCoords[2][1]+1)*self.squareDim-1, fill="#8ce29c", outline="#8ce29c", tags="agent2")))			
-		agents.append(Agent(agentCoords[3][0], agentCoords[3][1], self.canvas.create_rectangle(agentCoords[3][0]*self.squareDim+1, agentCoords[3][1]*self.squareDim+1, (agentCoords[3][0]+1)*self.squareDim-1, (agentCoords[3][1]+1)*self.squareDim-1, fill="#f9b8d3", outline="#f9b8d3", tags="agent3")))
+		# agents.append(Agent(agentCoords[1][0], agentCoords[1][1], self.canvas.create_rectangle(agentCoords[1][0]*self.squareDim+1, agentCoords[1][1]*self.squareDim+1, (agentCoords[1][0]+1)*self.squareDim-1, (agentCoords[1][1]+1)*self.squareDim-1, fill="#91cbf7", outline="#91cbf7", tags="agent1")))
+		# agents.append(Agent(agentCoords[2][0], agentCoords[2][1], self.canvas.create_rectangle(agentCoords[2][0]*self.squareDim+1, agentCoords[2][1]*self.squareDim+1, (agentCoords[2][0]+1)*self.squareDim-1, (agentCoords[2][1]+1)*self.squareDim-1, fill="#8ce29c", outline="#8ce29c", tags="agent2")))			
+		# agents.append(Agent(agentCoords[3][0], agentCoords[3][1], self.canvas.create_rectangle(agentCoords[3][0]*self.squareDim+1, agentCoords[3][1]*self.squareDim+1, (agentCoords[3][0]+1)*self.squareDim-1, (agentCoords[3][1]+1)*self.squareDim-1, fill="#f9b8d3", outline="#f9b8d3", tags="agent3")))
 
 
 		self.canvas.pack()

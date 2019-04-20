@@ -1,16 +1,15 @@
 from warehouse import *
-from deepQ import *
 from q import *
 import random
 import time
 import sys
 import csv
 
-warehouseSize = [4, 4] #[coloumns, rows]
+warehouseSize = [10, 10] #[coloumns, rows]
 squareDim = 50 #pixels per square
 w = Warehouse(warehouseSize, squareDim)
 w.update()
-dqn = [dqn(), dqn()]
+qTables = [QTable(warehouseSize[0], warehouseSize[1]), QTable(warehouseSize[0], warehouseSize[1])]
 actionsDict = {0:"up", 1:"right", 2:"down", 3:"left", 4:"stay"}
 
 dataLog = []
@@ -19,31 +18,44 @@ goalsReached = 0
 oldState = [[0,9], [0,0]]
 nextState = [[0,0], [0,0]]
 totalReward = [0, 0]
-batchSize = 64
 
 def doStep(index):
 	global episodes, goalsReached, oldState, nextState, totalReward
-	agentCloseBy = w.agentCloseBy(index, oldState[index])
+	if episodes%10000 == 0:
+		time.sleep(0.05)
+	while True:
+		if random.uniform(0,1)<qTables[index].epsilon:
+			action = random.randint(0, 4)
+		else:
+			action = qTables[index].findBestAction(oldState[index])
+		if (oldState[index][0] == 0 and action == 3) or (oldState[index][1] == 0 and action == 0) or (oldState[index][0] == warehouseSize[0]-1 and action == 1) or (oldState[index][1] == warehouseSize[1]-1 and action == 2):
+			continue
+		else:
+			break
 
-	action = dqn[index].pickAction(oldState[index], agentCloseBy)
+	# print("Agent:", index, " in state:", oldState[index], " makes action:", actionsDict[action])
+	w.moveAgent(index, action)
+	if episodes%10000 == 0:
+		w.update()
+	nextState[index] = w.getAgentCoords(index)
 
-	nextState[index] = w.nextCoords(index, action)
-	agentCloseBy2 = w.agentCloseBy(index, nextState[index])
-
-	collision, goalReached, reward = w.collision(index, nextState[index])
+	collision, goalReached = w.collision(index)
+	reward = w.reward(index)
 	totalReward[index] += reward
 
-	dqn[index].remember(oldState[index], action, agentCloseBy, agentCloseBy2, reward, nextState[index], collision, goalReached)
+	qTables[index].updateQTable(oldState[index], action, reward, nextState[index])
+	# print(oldState)
 
-	if len(dqn[index].memory) > batchSize:
-		dqn[index].replay(batchSize)
+	# if collision or goalReached:
+	# 	if goalReached:
+	# 		outputStr = "Episode " + str(episodes) + ": Goal reached!"
+	# 		goalsReached += 1
+	# 	else:
+	# 		outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState[index]) + "."
+	# 	dataLog.append([str(episodes), str(goalsReached)])
+	#	print(outputStr) 
 
-	if not collision:
-		oldState[index] = nextState[index]
-		w.moveAgent(index, action)
-		# if episodes%1==0:
-		# 	time.sleep(0.1)
-		# 	w.update()
+	oldState[index] = nextState[index]
 
 	return collision, goalReached
 
@@ -59,26 +71,21 @@ try:
 		goal1 = False
 		coll0 = False
 		coll1 = False
-
 		while True:
 			# print("goal 0:", goal0, "goal1:", goal1, "coll0:", coll0, "coll1", coll1)
-			# print("goal 0:", goal0, "   goal1:", goal1, "         coll0:", coll0, "   coll1:", coll1, "\n")
 			if not goal0:
 				coll0, goal0 = doStep(0)
 			if not goal1:
 				coll1, goal1 = doStep(1)
-			if goal0 and goal1:
-				goalsReached += 1
+			if coll0 or coll1 or (goal0 and goal1):
 				break
-			elif (coll0 and coll1) or (coll0 and goal1) or (coll1 and goal0):
-				break
-		
-		for network in dqn:
-			network.updateEpsilon()
 
-		if episodes%1 == 0:
-			print("epsilon: ", round(dqn[0].epsilon, 4), round(dqn[1].epsilon, 4))
-			print(str(episodes), ":th episode with a collective accumulated reward of", str(totalReward[0] + totalReward[1]))
+		dataLog.append([str(episodes), str(totalReward[0]), str(totalReward[1])])
+
+		if episodes%3000 == 0:
+			for qTable in qTables:
+				qTable.updateEpsilon()
+			print(str(episodes), ":th episode with rewards", totalReward[0], "and", totalReward[1])
 			print("goal 0:", goal0, "   goal1:", goal1, "         coll0:", coll0, "   coll1:", coll1, "\n")
 
 	w.mainloop()

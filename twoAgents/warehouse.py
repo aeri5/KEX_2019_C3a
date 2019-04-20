@@ -1,11 +1,11 @@
 import tkinter
 from agent import *
 
-obstacleCoords = [] #[[x, y], [x, y], ...]
+obstacleCoords = [[2,2], [3,2], [4,2], [5,2], [7,2], [7,3], [7,4], [3,4], [4,4], [5,4], [4, 9], [4, 8], [4, 7]] #[[x, y], [x, y], ...]
 obstacles = []
-agentCoords = [[0,3], [0,0]] #[[x, y], [x, y], ...] (agent start locations)
+agentCoords = [[0,9], [0,0]] #[[x, y], [x, y], ...] (agent start locations)
 agents = []
-goalCoords = [[3, 0], [3,3]]
+goalCoords = [[9, 0], [9,9]]
 goals = []
 
 class Warehouse(tkinter.Tk, object):
@@ -29,7 +29,7 @@ class Warehouse(tkinter.Tk, object):
 
 		#init goal
 		goals.append(self.canvas.create_rectangle(goalCoords[0][0]*self.squareDim+1, goalCoords[0][1]*self.squareDim+1, (goalCoords[0][0]+1)*self.squareDim-1, (goalCoords[0][1]+1)*self.squareDim-1, fill="#db3b23", outline="#db3b23", tags="goal0"))
-		goals.append(self.canvas.create_rectangle(goalCoords[1][0]*self.squareDim+1, goalCoords[1][1]*self.squareDim+1, (goalCoords[1][0]+1)*self.squareDim-1, (goalCoords[1][1]+1)*self.squareDim-1, fill="#2455b7", outline="#2455b7", tags="goal1"))	
+		goals.append(self.canvas.create_rectangle(goalCoords[1][0]*self.squareDim+1, goalCoords[1][1]*self.squareDim+1, (goalCoords[1][0]+1)*self.squareDim-1, (goalCoords[1][1]+1)*self.squareDim-1, fill="#4d95cc", outline="#4d95cc", tags="goal1"))	
 
 		#init agent
 		agents.append(Agent(agentCoords[0][0], agentCoords[0][1], self.canvas.create_rectangle(agentCoords[0][0]*self.squareDim+1, agentCoords[0][1]*self.squareDim+1, (agentCoords[0][0]+1)*self.squareDim-1, (agentCoords[0][1]+1)*self.squareDim-1, fill="#eda061", outline="#eda061", tags="agent0")))			
@@ -37,23 +37,6 @@ class Warehouse(tkinter.Tk, object):
 
 
 		self.canvas.pack()
-
-
-	def nextCoords(self, index, action):
-		nextCoords = self.getAgentCoords(index)
-		if action == 0:
-			nextCoords[1] = nextCoords[1] - 1
-		elif action == 1:
-			nextCoords[0] = nextCoords[0] + 1
-		elif action == 2:
-			nextCoords[1] = nextCoords[1] + 1
-		elif action == 3:
-			nextCoords[0] = nextCoords[0] - 1
-		elif action == 4:
-			nextCoords = nextCoords
-		else:
-			raise ValueError("Incorrect movement")
-		return nextCoords
 
 	def moveAgent(self, index, action):
 		if action == 0:
@@ -74,40 +57,30 @@ class Warehouse(tkinter.Tk, object):
 			raise ValueError("Incorrect movement")
 		# print(agents[index].x, "x", agents[index].y)
 
-
 	def restart(self, index):
 		agents[index].x = agentCoords[index][0]
 		agents[index].y = agentCoords[index][1]
 		self.canvas.coords(agents[index].tkID, agentCoords[index][0]*self.squareDim+1, agentCoords[index][1]*self.squareDim+1, (agentCoords[index][0]+1)*self.squareDim-1, (agentCoords[index][1]+1)*self.squareDim-1)
 		# print("restart")
 
+	def collision(self, index):
+		if [agents[index].x, agents[index].y] in obstacleCoords or [agents[index].x, agents[index].y] == [agents[(index+1)%2].x, agents[(index+1)%2].y]: #Agent collided with obstacle or another agent
+			return True, False
+		elif [agents[index].x, agents[index].y] == goalCoords[index]:	#Agent reached its goal
+			return False, True
+		else:	#No collision and goal not reached
+			return False, False
 
-	def collision(self, index, coords):
-		otherAgents = agents[:index] + agents[index+1:]
-		if (coords in obstacleCoords) or (coords in [[otherAgent.x, otherAgent.y] for otherAgent in otherAgents]) or (coords[0] < 0 or coords[0] > self.warehouseSize[0]-1 or coords[1] < 0 or coords[1] > self.warehouseSize[1]-1): #Agent collided with obstacle, another agent, or a wall
-			return True, False, -50
+	def reward(self, index):
+		reward = -1
+		collision, goalReached = self.collision(index)
+		if collision:
+				reward = -50		
+		elif goalReached:
+				reward = 50
 
-		elif coords == goalCoords[index]:	#Agent reached its goal
-			return False, True, 50
-
-		else:	#No collision, goal not reached
-			return False, False, -1
-
+		return reward
 
 	def getAgentCoords(self, index):
 		return [agents[index].x, agents[index].y]
 
-
-	def agentCloseBy(self, index, coords):
-		otherAgents = agents[:index] + agents[index+1:]
-		for otherAgent in otherAgents:
-			if otherAgent.y == coords[1]-1: #another agent above
-				return 0
-			elif otherAgent.x == coords[0]+1: #another agent to the right
-				return 1
-			elif otherAgent.y == coords[1]+1: #another agent below
-				return 2
-			elif otherAgent.x == coords[0]-1: #another agent to the left
-				return 3
-			else:	#no other agent close by
-				return 4

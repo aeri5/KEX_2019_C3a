@@ -41,6 +41,22 @@ class Warehouse(tkinter.Tk, object):
 
 		self.canvas.pack()
 
+	def nextCoords(self, index, action):
+		nextCoords = self.getAgentCoords(index)
+		if action == 0:
+			nextCoords[1] -= 1
+		elif action == 1:
+			nextCoords[0] += 1
+		elif action == 2:
+			nextCoords[1] += 1
+		elif action == 3:
+			nextCoords[0] -= 1
+		elif action == 4:
+			nextCoords = nextCoords
+		else:
+			raise ValueError("Incorrect movement")
+		return nextCoords
+
 	def moveAgent(self, index, action):
 		if action == 0:
 			self.canvas.move(agents[index].tkID, 0, -self.squareDim)
@@ -66,24 +82,13 @@ class Warehouse(tkinter.Tk, object):
 		self.canvas.coords(agents[index].tkID, agentCoords[index][0]*self.squareDim+1, agentCoords[index][1]*self.squareDim+1, (agentCoords[index][0]+1)*self.squareDim-1, (agentCoords[index][1]+1)*self.squareDim-1)
 		# print("restart")
 
-	def collision(self, index):
-		if [agents[index].x, agents[index].y] in obstacleCoords or agents[index].x < 0 or agents[index].x > self.warehouseSize[0]-1 or agents[index].y < 0 or agents[index].y > self.warehouseSize[1]-1: #Agent collided with obstacle or moved in to a wall
-			return True, False
-		elif [agents[index].x, agents[index].y] in goalCoords:	#Agent reached its goal
-			return True, True
+	def collision(self, index, coords):
+		if coords in obstacleCoords or coords[0] < 0 or coords[0] > self.warehouseSize[0]-1 or coords[1] < 0 or coords[1] > self.warehouseSize[1]-1: #Agent collided with obstacle or moved in to a wall
+			return True, False, -20
+		elif coords in goalCoords:	#Agent reached its goal
+			return False, True, 100
 		else:	#No collision and goal not reached
-			return False, False
-
-	def reward(self, index):
-		reward = -1
-		collision, goalReached = self.collision(index)
-		if collision:
-			if goalReached:
-				reward = 50
-			else:
-				reward = -50
-
-		return reward
+			return False, False, -1
 
 	def getAgentCoords(self, index):
 		return [agents[index].x, agents[index].y]

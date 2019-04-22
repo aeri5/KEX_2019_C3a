@@ -1,17 +1,19 @@
 from warehouse import *
+from q import *
 from deepQ import *
 import random
 import time
 import sys
 import csv
 
-warehouseSize = [4, 4] #[coloumns, rows]
+warehouseSize = [4,4] #[coloumns, rows]
 squareDim = 50 #pixels per square
 w = Warehouse(warehouseSize, squareDim)
 w.update()
 dqn = dqn()
 actionsDict = {0:"up", 1:"right", 2:"down", 3:"left", 4:"stay"}
-batchSize = 32
+batchSize = 128
+tatalReward = 0
 
 try:
 	dataLog = []
@@ -20,54 +22,48 @@ try:
 	while True:
 		w.restart(0)
 		episodes += 1
-		oldState = w.getAgentCoords(0)
 		totalReward = 0
+		oldState = w.getAgentCoords(0)
 
 		while True:
 			
 
-			if episodes % 25 == 0:
+			if episodes % 1000 == 0:
 				print("innan:", w.getAgentCoords(0))
 				action = dqn.pickAction(oldState)
 				print("action:", actionsDict[action])
-				w.moveAgent(0, action)
-				print("efter:", w.getAgentCoords(0))
+				nextState = w.nextCoords(0, action)				
+				print("efter:", nextState)
 				w.update()
 				time.sleep(0.1)
 
 			else:				
 				action = dqn.pickAction(oldState)
-				w.moveAgent(0, action)
+				nextState = w.nextCoords(0, action)
 
-			nextState = w.getAgentCoords(0)
-
-			collision, goalReached = w.collision(0)
-			reward = w.reward(0)
+			collision, goalReached, reward = w.collision(0, nextState)
 			totalReward += reward
 
-			dqn.remember(oldState, action, reward, nextState, collision, goalReached)
+			dqn.remember(oldState, action, nextState, collision, goalReached, reward)
 
-			# qTable.updateQTable(oldState, action, reward, nextState)
-			# print(oldState)
+			dataLog.append([str(episodes), str(totalReward)])
 
-			if collision:
+			if not collision:
+				oldState = nextState
+				w.moveAgent(0, action)
 				if goalReached:
-					outputStr = "Episode " + str(episodes) + ": Goal reached!"
 					goalsReached += 1
-				else:
-					outputStr = "Episode " + str(episodes) + ": Collided by moving " + actionsDict[action] + " at coords " + str(oldState) + "."
-				dataLog.append([str(episodes), str(goalsReached)])
-				# print(outputStr, "\n")
-				break
+					break
 
-			oldState = nextState
+		if len(dqn.memory) > batchSize:
+			dqn.replay(batchSize)
 
-			if len(dqn.memory) > batchSize:
-				dqn.replay(batchSize)
+		
+		dqn.updateEpsilon()
 
-		if episodes % 25 == 0:
+		if episodes % 1 == 0:
 			print("epsilon:", dqn.epsilon)
-			print(str(episodes), "episodes with ", str(round(100*goalsReached/episodes)), "% of goals reached in total and a reward of ", totalReward, "for the last episode.")
+			print(str(episodes), "episodes with the latest reward of", str(totalReward), "\n")
 
 	w.mainloop()
 

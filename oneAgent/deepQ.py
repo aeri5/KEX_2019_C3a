@@ -11,14 +11,17 @@ sess = tf.InteractiveSession()
 
 class dqn():
 	def __init__(self):
-		self.gamma = 0.95
-		self.alpha = 0.001
+
+		self.gamma = 0.9
+		self.alpha = 0.01
 		self.epsilon = 1.0
 		self.epsilonMin = 0.01
-		self.epsilonDecay = 0.995
+		self.epsilonDecay = 0.9
+
 		self.memory = deque(maxlen = 2000)
 
 		self.model = Sequential()
+
 		self.model.add(Dense(24, input_dim=2, activation='relu'))
 		self.model.add(Dense(24, activation='relu'))
 		self.model.add(Dense(5, activation='linear'))
@@ -35,27 +38,24 @@ class dqn():
 			return np.argmax(actions[0])
 
 
-	def remember(self, state, action, reward, nextState, collision, goalReached):
-		self.memory.append([state, action, reward, nextState, collision, goalReached])
+	def remember(self, oldState, action, nextState, collision, goalReached, reward):
+		self.memory.append([oldState, action, nextState, collision, goalReached, reward])
 
 
 	def replay(self, batchSize):
 		miniBatch = sample(self.memory, batchSize)
 
-		for state, action, reward, nextState, collision, goalReached in miniBatch:
+		for oldState, action, nextState, collision, goalReached, reward in miniBatch:
 			target = reward
 			if not (collision or goalReached):
 			  target = reward + self.gamma * np.amax(self.model.predict(np.reshape(np.asarray(nextState), [1, 2]))[0])
-			targetF = self.model.predict(np.reshape(np.asarray(state), [1, 2]))
+			targetF = self.model.predict(np.reshape(np.asarray(oldState), [1, 2]))
 			targetF[0][action] = target
 
-			self.model.fit(np.reshape(np.asarray(state), [1, 2]), targetF, epochs=1, verbose=0)
+			self.model.fit(np.reshape(np.asarray(oldState), [1, 2]), targetF, epochs=1, verbose=0)
+		self.memory.clear()
 
+	def updateEpsilon(self):
 		if self.epsilon > self.epsilonMin:
 			self.epsilon *= self.epsilonDecay
-
-
-
-	def stateToRowIndex(self, state):
-		rowIndex = state[1]*10 + state[0]
-		return rowIndex
+		# self.epsilon = 0.001
